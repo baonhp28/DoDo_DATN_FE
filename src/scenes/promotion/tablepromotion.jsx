@@ -17,7 +17,6 @@ const Promotions = ({ onSelectPromotion }) => {
   const colors = tokens(theme.palette.mode);
   const [promotions, setPromotions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const Promotions = ({ onSelectPromotion }) => {
         }));
 
         dataWithId.sort((a, b) => b.id - a.id);
-
         setPromotions(dataWithId);
 
         const id = params.id || searchParams.get("id") || null;
@@ -49,10 +47,6 @@ const Promotions = ({ onSelectPromotion }) => {
             }
           }
         }
-      })
-      .catch(error => {
-        console.error('Lỗi khi tải dữ liệu:', error);
-        setError(error.message);
       });
   }, [searchParams, params.id, onSelectPromotion]);
 
@@ -84,14 +78,9 @@ const Promotions = ({ onSelectPromotion }) => {
           selectedIds.map(id => axios.delete(`http://localhost:8080/api/promotions/${id}`))
         )
           .then(() => {
-            console.log("Đã xóa các khuyến mãi thành công");
             setPromotions(prevPromotions => prevPromotions.filter(promotion => !selectedIds.includes(promotion.id)));
             setSelectedIds([]);
             toast.success("Đã xóa khuyến mãi thành công");
-          })
-          .catch(error => {
-            console.error('Lỗi khi xóa khuyến mãi:', error);
-            toast.error("Đã xảy ra lỗi khi xóa khuyến mãi");
           });
       }
     } else {
@@ -112,100 +101,96 @@ const Promotions = ({ onSelectPromotion }) => {
   return (
     <Box m="20px">
       <Header title="Khuyến mãi" subtitle="Bảng danh sách khuyến mãi" />
-
-      {error ? (
-        <div>Lỗi: {error}</div>
-      ) : (
-        <>
-          <Box
-            display="flex"
-            backgroundColor={colors.primary[400]}
-            borderRadius="3px"
-            mb="20px"
-            width="250px"
-            height="35px"
+      
+      <Box
+        display="flex"
+        backgroundColor={colors.primary[400]}
+        borderRadius="3px"
+        mb="20px"
+        width="250px"
+        height="35px"
+      >
+        <InputBase
+          sx={{ ml: 1, flex: 1, py: 1 }}
+          placeholder="Tìm kiếm..."
+          value={searchTerm}
+          onChange={handleSearch}
+        />
+      </Box>
+      
+      <Box display="flex" justifyContent="flex-end" mb="20px">
+        {selectedIds.length <= 1 && (
+          <Button
+            type="button"
+            color="secondary"
+            variant="contained"
+            onClick={handleEditOrAddPromotion}
+            sx={{ marginRight: '10px' }}
           >
-            <InputBase
-              sx={{ ml: 1, flex: 1, py: 1 }}
-              placeholder="Tìm kiếm..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </Box>
-          <Box display="flex" justifyContent="flex-end" mb="20px">
-            {selectedIds.length <= 1 && (
-              <Button
-                type="button"
-                color="secondary"
-                variant="contained"
-                onClick={handleEditOrAddPromotion}
-                sx={{ marginRight: '10px' }}
-              >
-                {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
-              </Button>
-            )}
-            {selectedIds.length > 0 && (
-              <Button
-                type="button"
-                color="secondary"
-                variant="contained"
-                onClick={handleDeletePromotion}
-                sx={{ marginRight: '10px' }}
-              >
-                {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
-              </Button>
-            )}
-          </Box>
-          {promotions.length === 0 ? (
-            <div>Không có khuyến mãi nào được tìm thấy.</div>
-          ) : (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
-                  <TableRow>
-                    <TableCell />
-                    <TableCell sx={{ color: 'white' }}>ID</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Tên khuyến mãi</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Phần trăm khuyến mãi</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Ngày bắt đầu</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Ngày kết thúc</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredPromotions.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      onClick={() => handleRowClick(row.id)}
-                      sx={{
-                        cursor: 'pointer',
-                        '&:last-child td, &:last-child th': { border: 0 },
-                        backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
-                        '&:hover': {
-                          backgroundColor: colors.primary[900],
-                        },
-                      }}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isSelected(row.id)}
-                          onChange={() => handleRowClick(row.id)}
-                          color="primary"
-                        />
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        {row.id}
-                      </TableCell>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.percents}</TableCell>
-                      <TableCell>{row.startDate}</TableCell>
-                      <TableCell>{row.endDate}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </>
+            {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
+          </Button>
+        )}
+        {selectedIds.length > 0 && (
+          <Button
+            type="button"
+            color="secondary"
+            variant="contained"
+            onClick={handleDeletePromotion}
+            sx={{ marginRight: '10px' }}
+          >
+            {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
+          </Button>
+        )}
+      </Box>
+
+      {promotions.length === 0 ? (
+        <div>Không có khuyến mãi nào được tìm thấy.</div>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
+              <TableRow>
+                <TableCell />
+                <TableCell sx={{ color: 'white' }}>ID</TableCell>
+                <TableCell sx={{ color: 'white' }}>Tên khuyến mãi</TableCell>
+                <TableCell sx={{ color: 'white' }}>Phần trăm khuyến mãi</TableCell>
+                <TableCell sx={{ color: 'white' }}>Ngày bắt đầu</TableCell>
+                <TableCell sx={{ color: 'white' }}>Ngày kết thúc</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredPromotions.map((row) => (
+                <TableRow
+                  key={row.id}
+                  onClick={() => handleRowClick(row.id)}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:last-child td, &:last-child th': { border: 0 },
+                    backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
+                    '&:hover': {
+                      backgroundColor: colors.primary[900],
+                    },
+                  }}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={isSelected(row.id)}
+                      onChange={() => handleRowClick(row.id)}
+                      color="primary"
+                    />
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {row.id}
+                  </TableCell>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.percents}</TableCell>
+                  <TableCell>{row.startDate}</TableCell>
+                  <TableCell>{row.endDate}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
       <ToastContainer />
     </Box>

@@ -7,7 +7,7 @@ import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
-import PropTypes from 'prop-types';  // Import PropTypes
+import PropTypes from 'prop-types';
 
 const Product = ({ onSelectProduct }) => {
     const [searchParams] = useSearchParams();
@@ -17,7 +17,6 @@ const Product = ({ onSelectProduct }) => {
     const colors = tokens(theme.palette.mode);
     const [products, setProducts] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -40,9 +39,8 @@ const Product = ({ onSelectProduct }) => {
                 dataWithId.sort((a, b) => b.id - a.id);
                 setProducts(dataWithId);
             })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                setError('Có lỗi xảy ra khi lấy dữ liệu');
+            .catch(() => {
+                // Handle error silently, removing error state and display
             });
     }, [searchParams, params.id, onSelectProduct]);
 
@@ -90,8 +88,8 @@ const Product = ({ onSelectProduct }) => {
                     setSelectedIds([]);
                     toast.success("Đã xóa sản phẩm thành công");
                 })
-                .catch(error => {
-                    console.error('Error deleting products:', error);
+                .catch(() => {
+                    // Handle error silently, removing error handling
                     toast.error("Đã xảy ra lỗi khi xóa sản phẩm");
                 });
             }
@@ -115,114 +113,108 @@ const Product = ({ onSelectProduct }) => {
         <Box m="20px">
             <Header title="Sản phẩm" subtitle="Bảng danh sách sản phẩm" />
 
-            {error ? (
-                <div>Lỗi: {error}</div>
-            ) : (
-                <>
-                    <Box
-                        display="flex"
-                        backgroundColor={colors.primary[400]}
-                        borderRadius="3px"
-                        mb="20px"
-                        width="250px"
-                        height="35px"
+            <Box
+                display="flex"
+                backgroundColor={colors.primary[400]}
+                borderRadius="3px"
+                mb="20px"
+                width="250px"
+                height="35px"
+            >
+                <InputBase
+                    sx={{ ml: 1, flex: 1, py: 1 }}
+                    placeholder="Tìm kiếm..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                />
+            </Box>
+            <Box display="flex" justifyContent="flex-end" mb="20px">
+                {selectedIds.length <= 1 && (
+                    <Button
+                        type="button"
+                        color="secondary"
+                        variant="contained"
+                        onClick={handleEditOrAddProduct}
+                        sx={{ marginRight: '10px' }}
                     >
-                        <InputBase
-                            sx={{ ml: 1, flex: 1, py: 1 }}
-                            placeholder="Tìm kiếm..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                        />
-                    </Box>
-                    <Box display="flex" justifyContent="flex-end" mb="20px">
-                        {selectedIds.length <= 1 && (
-                            <Button
-                                type="button"
-                                color="secondary"
-                                variant="contained"
-                                onClick={handleEditOrAddProduct}
-                                sx={{ marginRight: '10px' }}
-                            >
-                                {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
-                            </Button>
-                        )}
-                        {selectedIds.length > 0 && (
-                            <Button
-                                type="button"
-                                color="secondary"
-                                variant="contained"
-                                onClick={handleDeleteProduct}
-                                sx={{ marginRight: '10px' }}
-                            >
-                                {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
-                            </Button>
-                        )}
-                    </Box>
-                    {products.length === 0 ? (
-                        <div>Không có sản phẩm nào được tìm thấy.</div>
-                    ) : (
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
-                                    <TableRow>
-                                        <TableCell />
-                                        <TableCell sx={{ color: 'white' }}>ID</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Tên sản phẩm</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Mô tả</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Loại</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Hình ảnh</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Ngày tạo</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Ngày cập nhật</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredProducts.map((row) => (
-                                        <TableRow
-                                            key={row.id}
-                                            onClick={() => handleRowClick(row.id)}
-                                            sx={{
-                                                cursor: 'pointer',
-                                                '&:last-child td, &:last-child th': { border: 0 },
-                                                backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
-                                                '&:hover': {
-                                                    backgroundColor: colors.primary[900],
-                                                },
-                                            }}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={isSelected(row.id)}
-                                                    onChange={() => handleRowClick(row.id)}
-                                                    color="primary"
-                                                />
-                                            </TableCell>
-                                            <TableCell component="th" scope="row">
-                                                {row.id}
-                                            </TableCell>
-                                            <TableCell>{row.name}</TableCell>
-                                            <TableCell>{row.description}</TableCell>
-                                            <TableCell>{row.category}</TableCell>
-                                            <TableCell>
-                                                {row.imgUrl ? (
-                                                    <img
-                                                        src={`http://localhost:8080/assets/img/${row.imgUrl}`} // Ensure path is correct
-                                                        alt="Product image"
-                                                        width={100}
-                                                        height={100}
-                                                    />
-                                                ) : (
-                                                    <span>Không có ảnh</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>{row.createdAt}</TableCell>
-                                            <TableCell>{row.updatedAt}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                </>
+                        {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
+                    </Button>
+                )}
+                {selectedIds.length > 0 && (
+                    <Button
+                        type="button"
+                        color="secondary"
+                        variant="contained"
+                        onClick={handleDeleteProduct}
+                        sx={{ marginRight: '10px' }}
+                    >
+                        {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
+                    </Button>
+                )}
+            </Box>
+            {products.length === 0 ? (
+                <div>Không có sản phẩm nào được tìm thấy.</div>
+            ) : (
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
+                            <TableRow>
+                                <TableCell />
+                                <TableCell sx={{ color: 'white' }}>ID</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Tên sản phẩm</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Mô tả</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Loại</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Hình ảnh</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Ngày tạo</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Ngày cập nhật</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {filteredProducts.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    onClick={() => handleRowClick(row.id)}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        '&:last-child td, &:last-child th': { border: 0 },
+                                        backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
+                                        '&:hover': {
+                                            backgroundColor: colors.primary[900],
+                                        },
+                                    }}
+                                >
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            checked={isSelected(row.id)}
+                                            onChange={() => handleRowClick(row.id)}
+                                            color="primary"
+                                        />
+                                    </TableCell>
+                                    <TableCell component="th" scope="row">
+                                        {row.id}
+                                    </TableCell>
+                                    <TableCell>{row.name}</TableCell>
+                                    <TableCell>{row.description}</TableCell>
+                                    <TableCell>{row.category}</TableCell>
+                                    <TableCell>
+                                        {row.imgUrl ? (
+                                            <img
+                                                src={`http://localhost:8080/assets/img/${row.imgUrl}`}
+                                                alt="Product image"
+                                                width={100}
+                                                height={100}
+                                            />
+                                        ) : (
+                                            <span>Không có ảnh</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>{row.createdAt}</TableCell>
+                                    <TableCell>{row.updatedAt}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             )}
             <ToastContainer />
         </Box>

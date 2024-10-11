@@ -10,7 +10,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-// Bắt lỗi
+// Schema xác thực đầu vào
 const attributeSchema = yup.object().shape({
   name: yup.string().required("Tên thuộc tính là bắt buộc"),
 });
@@ -23,6 +23,7 @@ const AttributeForm = ({ onAttributeUpdated }) => {
     name: ""
   });
 
+  // Tải dữ liệu thuộc tính nếu có id
   useEffect(() => {
     if (id) {
       axios.get(`http://localhost:8080/api/attributes/${id}`)
@@ -34,8 +35,7 @@ const AttributeForm = ({ onAttributeUpdated }) => {
             });
           }
         })
-        .catch(error => {
-          console.error('Lỗi khi tải dữ liệu:', error);
+        .catch(() => {
           toast.error("Lỗi khi tải dữ liệu");
         });
     }
@@ -49,22 +49,17 @@ const AttributeForm = ({ onAttributeUpdated }) => {
         return;
       }
 
-      // Tạo FormData và thêm từng field vào
+      // Tạo FormData và thêm các trường vào
       const formData = new FormData();
       formData.append('name', values.name);
-      formData.append('description', values.description);
 
-      // Thực hiện yêu cầu với FormData
+      // Thực hiện yêu cầu API
       const request = id
         ? axios.put(`http://localhost:8080/api/attributes/${id}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { 'Content-Type': 'multipart/form-data' }
         })
         : axios.post(`http://localhost:8080/api/attributes`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
 
       request
@@ -74,19 +69,17 @@ const AttributeForm = ({ onAttributeUpdated }) => {
             onClose: () => {
               setTimeout(() => {
                 if (onAttributeUpdated) {
-                  onAttributeUpdated(response.data); // Gọi hàm callback để thông báo cho component cha
+                  onAttributeUpdated(response.data); // Gọi hàm callback để cập nhật dữ liệu ở component cha
                 }
                 navigate("/admin/tableAttributes");
               }, 100);
             }
           });
         })
-        .catch(error => {
-          console.error('Lỗi khi xử lý thuộc tính:', error);
+        .catch(() => {
           toast.error("Đã xảy ra lỗi khi xử lý thuộc tính");
         });
-    } catch (error) {
-      console.error('Lỗi khi kiểm tra tên thuộc tính:', error);
+    } catch {
       toast.error("Đã xảy ra lỗi khi kiểm tra tên thuộc tính");
     }
   };
@@ -149,12 +142,12 @@ AttributeForm.propTypes = {
   onAttributeUpdated: PropTypes.func,
 };
 
+// Hàm kiểm tra tên thuộc tính có tồn tại hay không
 const checkAttributeNameExists = async (attributeName) => {
   try {
     const response = await axios.get(`http://localhost:8080/api/attributes/check?name=${attributeName}`);
     return response.data;
-  } catch (error) {
-    console.error("Lỗi kiểm tra tên thuộc tính:", error);
+  } catch {
     return false;
   }
 };

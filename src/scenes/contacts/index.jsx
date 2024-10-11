@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataContacts } from "../../../src/part/admin/data/mockData";
+import { mockDataContacts } from "../../../src/part/admin/data/mockData"; // Ensure this is used
 import Header from "../../component/Header";
 import { useTheme } from "@mui/material";
 
@@ -11,7 +11,6 @@ const Contacts = () => {
 
   const columns = [
     { field: "id", headerName: "Mã", flex: 0.5 },
-    // { field: "registrarId", headerName: "Registrar ID" },
     {
       field: "name",
       headerName: "Tên",
@@ -64,12 +63,7 @@ const Contacts = () => {
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
-          }
-          // ,
-          // "& .MuiDataGrid-cell": {
-          //   borderBottom: "none",
-          // }
-          ,
+          },
           "& .name-column--cell": {
             color: colors.greenAccent[300],
           },
@@ -93,7 +87,7 @@ const Contacts = () => {
         }}
       >
         <DataGrid
-          rows={mockDataContacts}
+          rows={mockDataContacts} // Ensure mockDataContacts is being used
           columns={columns}
           components={{ Toolbar: GridToolbar }}
         />

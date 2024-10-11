@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Formik, Field, Form } from 'formik';
-import * as yup from 'yup';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -48,17 +47,17 @@ const Formproductpromotion = ({ onProductpromotionUpdated, selectedProductpromot
 
     const handleFormSubmit = (values) => {
         console.log('Submitting:', values);
-    
+
         const productPromotionDTO = {
             id: id || 0,
             product: { id: values.id || "" },
             promotion: { promotionID: values.promotionID || "" }
         };
-    
+
         const request = id
             ? axios.put(`http://localhost:8080/api/productpromotions/${id}`, productPromotionDTO, { headers: { 'Content-Type': 'application/json' } })
             : axios.post(`http://localhost:8080/api/productpromotions`, productPromotionDTO, { headers: { 'Content-Type': 'application/json' } });
-    
+
         request
             .then(response => {
                 toast.success(id ? "Cập nhật SP_KM thành công" : "Thêm SP_KM thành công", {
@@ -82,20 +81,16 @@ const Formproductpromotion = ({ onProductpromotionUpdated, selectedProductpromot
         <Box p="2%" m="20px" mt="-25px">
             <Formik
                 initialValues={initialValues}
-                validationSchema={yup.object().shape({
-                    promotionID: yup.string().required("Vui lòng chọn khuyến mãi!"),
-                    id: yup.string().required("Vui lòng chọn sản phẩm!"),
-                })}
                 onSubmit={handleFormSubmit}
                 enableReinitialize
             >
-                {({ values, errors, touched, handleChange, handleBlur }) => (
+                {({ values, handleChange, handleBlur }) => (
                     <Form>
                         <Box display="grid" gap="30px" mt="30px">
                             <div className='row'>
                                 <div className='col-2'></div>
                                 <div className='col-7'>
-                                    <FormControl fullWidth m="250px" error={!!touched.id && !!errors.id} style={{ marginBottom: '20px' }}>
+                                    <FormControl fullWidth m="250px" style={{ marginBottom: '20px' }}>
                                         <InputLabel>Chọn sản phẩm</InputLabel>
                                         <Field
                                             as={Select}
@@ -110,9 +105,8 @@ const Formproductpromotion = ({ onProductpromotionUpdated, selectedProductpromot
                                                 </MenuItem>
                                             ))}
                                         </Field>
-                                        <FormHelperText>{touched.id && errors.id}</FormHelperText>
                                     </FormControl>
-                                    <FormControl fullWidth m="250px" error={!!touched.promotionID && !!errors.promotionID}>
+                                    <FormControl fullWidth m="250px">
                                         <InputLabel>Chọn khuyến mãi</InputLabel>
                                         <Field
                                             as={Select}
@@ -127,7 +121,6 @@ const Formproductpromotion = ({ onProductpromotionUpdated, selectedProductpromot
                                                 </MenuItem>
                                             ))}
                                         </Field>
-                                        <FormHelperText>{touched.promotionID && errors.promotionID}</FormHelperText>
                                     </FormControl>
                                     <Button
                                         type="submit"

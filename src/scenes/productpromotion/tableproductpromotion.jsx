@@ -15,7 +15,6 @@ const Tablepropromotion = ({ onSelectProductpromotion }) => {
     const colors = tokens(theme.palette.mode);
     const [productpromotions, setProductpromotions] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -31,7 +30,7 @@ const Tablepropromotion = ({ onSelectProductpromotion }) => {
             })
             .catch(error => {
                 console.error('Lỗi khi lấy dữ liệu:', error);
-                setError('Có lỗi xảy ra khi lấy dữ liệu');
+                toast.error("Có lỗi xảy ra khi lấy dữ liệu");
             });
     }, [searchParams]);
 
@@ -96,95 +95,89 @@ const Tablepropromotion = ({ onSelectProductpromotion }) => {
         <Box m="20px">
             <Header title="SP_KM" subtitle="Bảng danh sách sản phẩm_khuyến mãi" />
 
-            {error ? (
-                <div>Lỗi: {error}</div>
-            ) : (
-                <>
-                    <Box
-                        display="flex"
-                        backgroundColor={colors.primary[400]}
-                        borderRadius="3px"
-                        mb="20px"
-                        width="250px"
-                        height="35px"
+            <Box
+                display="flex"
+                backgroundColor={colors.primary[400]}
+                borderRadius="3px"
+                mb="20px"
+                width="250px"
+                height="35px"
+            >
+                <InputBase
+                    sx={{ ml: 1, flex: 1, py: 1 }}
+                    placeholder="Tìm kiếm..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                />
+            </Box>
+            <Box display="flex" justifyContent="flex-end" mb="20px">
+                {selectedIds.length <= 1 && (
+                    <Button
+                        type="button"
+                        color="secondary"
+                        variant="contained"
+                        onClick={handleEditOrAddProduct}
+                        sx={{ marginRight: '10px' }}
                     >
-                        <InputBase
-                            sx={{ ml: 1, flex: 1, py: 1 }}
-                            placeholder="Tìm kiếm..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                        />
-                    </Box>
-                    <Box display="flex" justifyContent="flex-end" mb="20px">
-                        {selectedIds.length <= 1 && (
-                            <Button
-                                type="button"
-                                color="secondary"
-                                variant="contained"
-                                onClick={handleEditOrAddProduct}
-                                sx={{ marginRight: '10px' }}
-                            >
-                                {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
-                            </Button>
-                        )}
-                        {selectedIds.length > 0 && (
-                            <Button
-                                type="button"
-                                color="secondary"
-                                variant="contained"
-                                onClick={handleDeleteProduct}
-                                sx={{ marginRight: '10px' }}
-                            >
-                                {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
-                            </Button>
-                        )}
-                    </Box>
-                    {productpromotions.length === 0 ? (
-                        <div>Không có sản phẩm nào được tìm thấy.</div>
-                    ) : (
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
-                                    <TableRow>
-                                        <TableCell />
-                                        <TableCell sx={{ color: 'white' }}>ID</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>ID khuyến mãi</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>ID sản phẩm</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredProductpromotions.map((row) => (
-                                        <TableRow
-                                            key={row.id}
-                                            onClick={() => handleRowClick(row.id)}
-                                            sx={{
-                                                cursor: 'pointer',
-                                                '&:last-child td, &:last-child th': { border: 0 },
-                                                backgroundColor: isSelected(row.id) ? colors.primary[300] : 'inherit',
-                                                '&:hover': {
-                                                    backgroundColor: colors.primary[200],
-                                                },
-                                            }}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={isSelected(row.id)}
-                                                    onChange={() => handleRowClick(row.id)}
-                                                    color="primary"
-                                                />
-                                            </TableCell>
-                                            <TableCell component="th" scope="row">
-                                                {row.id}
-                                            </TableCell>
-                                            <TableCell>{row.promotionId}</TableCell>
-                                            <TableCell>{row.productId}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                </>
+                        {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
+                    </Button>
+                )}
+                {selectedIds.length > 0 && (
+                    <Button
+                        type="button"
+                        color="secondary"
+                        variant="contained"
+                        onClick={handleDeleteProduct}
+                        sx={{ marginRight: '10px' }}
+                    >
+                        {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
+                    </Button>
+                )}
+            </Box>
+            {productpromotions.length === 0 ? (
+                <div>Không có sản phẩm nào được tìm thấy.</div>
+            ) : (
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
+                            <TableRow>
+                                <TableCell />
+                                <TableCell sx={{ color: 'white' }}>ID</TableCell>
+                                <TableCell sx={{ color: 'white' }}>ID khuyến mãi</TableCell>
+                                <TableCell sx={{ color: 'white' }}>ID sản phẩm</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {filteredProductpromotions.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    onClick={() => handleRowClick(row.id)}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        '&:last-child td, &:last-child th': { border: 0 },
+                                        backgroundColor: isSelected(row.id) ? colors.primary[300] : 'inherit',
+                                        '&:hover': {
+                                            backgroundColor: colors.primary[200],
+                                        },
+                                    }}
+                                >
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            checked={isSelected(row.id)}
+                                            onChange={() => handleRowClick(row.id)}
+                                            color="primary"
+                                        />
+                                    </TableCell>
+                                    <TableCell component="th" scope="row">
+                                        {row.id}
+                                    </TableCell>
+                                    <TableCell>{row.promotionId}</TableCell>
+                                    <TableCell>{row.productId}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             )}
             <ToastContainer />
         </Box>

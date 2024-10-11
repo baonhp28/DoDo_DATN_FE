@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';  // Import PropTypes
-import { Box, useTheme, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, InputBase } from "@mui/material";
+import PropTypes from 'prop-types';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, InputBase } from "@mui/material";
+import { useTheme } from "@mui/material/styles"; // Import useTheme riêng
 import { tokens } from "../../theme";
 import Header from "../../component/Header";
 import axios from 'axios';
 import { useSearchParams, useParams, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';  // Import toast và ToastContainer
-import 'react-toastify/dist/ReactToastify.css';  // Import stylesheet cho toast
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Attributes = ({ onSelectAttribute }) => {
   const [searchParams] = useSearchParams();
@@ -26,9 +27,7 @@ const Attributes = ({ onSelectAttribute }) => {
           id: attribute.id,
           name: attribute.name,
         }));
-
         dataWithId.sort((a, b) => b.id - a.id);
-
         setAttributes(dataWithId);
 
         const id = params.id || searchParams.get("id") || null;
@@ -54,7 +53,6 @@ const Attributes = ({ onSelectAttribute }) => {
         ? prevSelected.filter(selectedId => selectedId !== id)
         : [...prevSelected, id]
     );
-
     const selectedAttribute = attributes.find(attribute => attribute.id === id);
     if (onSelectAttribute && selectedAttribute) {
       onSelectAttribute(selectedAttribute);
@@ -76,18 +74,17 @@ const Attributes = ({ onSelectAttribute }) => {
           selectedIds.map(id => axios.delete(`http://localhost:8080/api/attributes/${id}`))
         )
           .then(() => {
-            console.log("Đã xóa các thuộc tính thành công");
             setAttributes(prevAttributes => prevAttributes.filter(attribute => !selectedIds.includes(attribute.id)));
             setSelectedIds([]);
-            toast.success("Đã xóa thuộc tính thành công");  // Hiển thị thông báo thành công
+            toast.success("Đã xóa thuộc tính thành công");
           })
           .catch(error => {
             console.error('Lỗi khi xóa thuộc tính:', error);
-            toast.error("Đã xảy ra lỗi khi xóa thuộc tính");  // Hiển thị thông báo lỗi
+            toast.error("Đã xảy ra lỗi khi xóa thuộc tính");
           });
       }
     } else {
-      toast.error("Chưa chọn thuộc tính nào để xóa");  // Hiển thị thông báo nếu không chọn thuộc tính
+      toast.error("Chưa chọn thuộc tính nào để xóa");
     }
   };
 
@@ -104,19 +101,11 @@ const Attributes = ({ onSelectAttribute }) => {
   return (
     <Box m="20px">
       <Header title="Thuộc tính" subtitle="Bảng danh sách thuộc tính" />
-
       {error ? (
         <div>Lỗi: {error}</div>
       ) : (
         <>
-          <Box
-            display="flex"
-            backgroundColor={colors.primary[400]}
-            borderRadius="3px"
-            mb="20px"
-            width="250px"
-            height="35px"
-          >
+          <Box display="flex" mb="20px" width="250px" height="35px">
             <InputBase
               sx={{ ml: 1, flex: 1, py: 1 }}
               placeholder="Tìm kiếm..."
@@ -152,7 +141,7 @@ const Attributes = ({ onSelectAttribute }) => {
             <div>Không có thuộc tính nào được tìm thấy.</div>
           ) : (
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table sx={{ minWidth: 650 }}>
                 <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
                   <TableRow>
                     <TableCell />
@@ -167,7 +156,6 @@ const Attributes = ({ onSelectAttribute }) => {
                       onClick={() => handleRowClick(row.id)}
                       sx={{
                         cursor: 'pointer',
-                        '&:last-child td, &:last-child th': { border: 0 },
                         backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
                         '&:hover': {
                           backgroundColor: colors.primary[900],
@@ -193,7 +181,7 @@ const Attributes = ({ onSelectAttribute }) => {
           )}
         </>
       )}
-      <ToastContainer />  {/* Đặt ToastContainer để hiển thị thông báo */}
+      <ToastContainer />
     </Box>
   );
 };

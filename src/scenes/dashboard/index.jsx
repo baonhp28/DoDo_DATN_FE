@@ -297,7 +297,7 @@ const Dashboard = () => {
             value={month}
             onChange={(e) => setMonth(e.target.value)}
             variant="outlined"
-            style={{ width: "150px", marginRight: "10px" }}
+            style={{ marginRight: "10px", width: "120px" }}
           >
             {months.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -311,20 +311,20 @@ const Dashboard = () => {
             value={year}
             onChange={(e) => setYear(e.target.value)}
             variant="outlined"
-            style={{ width: "150px", marginRight: "10px" }}
+            style={{ marginRight: "10px", width: "120px" }}
           >
-            {years.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
+            {years.map((yearOption) => (
+              <MenuItem key={yearOption.value} value={yearOption.value}>
+                {yearOption.label}
               </MenuItem>
             ))}
           </TextField>
+          <Button variant="contained" onClick={handleSearch}>
+            Tìm kiếm
+          </Button>
           <IconButton onClick={handleNextMonth}>
             <ArrowRightIcon />
           </IconButton>
-          <Button variant="contained" color="primary" onClick={handleSearch}>
-            Tìm kiếm
-          </Button>
         </Box>
 
         <TableContainer component={Paper}>
@@ -332,20 +332,18 @@ const Dashboard = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Tên sản phẩm</TableCell>
-                <TableCell>Số lượng bán</TableCell>
+                <TableCell>Số lượng</TableCell>
                 <TableCell>Doanh thu</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {reports &&
-                reports.length > 0 &&
-                reports.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.name || "N/A"}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>{item.revenue}</TableCell>
-                  </TableRow>
-                ))}
+              {reports.map((report, index) => (
+                <TableRow key={index}>
+                  <TableCell>{report.name}</TableCell>
+                  <TableCell>{report.quantity}</TableCell>
+                  <TableCell>{report.revenue}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
