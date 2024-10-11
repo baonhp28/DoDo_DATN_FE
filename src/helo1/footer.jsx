@@ -126,7 +126,9 @@ function Footer(){
             </div>
         </div>
         <div className="footer-copyright">
-            <p>© Petmark, 2022. Made with ❤️ by <a href="https://hasthemes.com/">HasThemes.</a></p>
+        <p style={{ textAlign: 'center' }}>
+      © Petmark, 2022. Made with ❤️ by <a href="https://hasthemes.com/">HasThemes</a>.
+    </p>
         </div>
     </footer>
     </div>

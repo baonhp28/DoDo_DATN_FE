@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MainLayout from "./MainLayout";
 import Admin from "./MainAdmin";
 import Dashboard from "./scenes/dashboard";
@@ -133,9 +133,6 @@ function App() {
             path="formAttributeOption/:id"
             element={<FormAttributeOption />}
           />
-
-          {/* <Route path="employeeForm/:id" element={<EmployeeForm />} />
-          <Route path="employeeForm" element={<EmployeeForm />} /> */}
         </Route>
 
         {/* User Routes */}
