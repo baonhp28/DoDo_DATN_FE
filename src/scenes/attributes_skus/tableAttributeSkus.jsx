@@ -13,7 +13,6 @@ const AttributeOptions = ({ onSelectAttributeOption }) => {
     const navigate = useNavigate();
     const colors = tokens(theme.palette.mode);
     const [skus, setSkus] = useState([]);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [selectedIds, setSelectedIds] = useState([]);
@@ -64,7 +63,6 @@ const AttributeOptions = ({ onSelectAttributeOption }) => {
                 setLoading(false);
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu:', error);
-                setError('Đã xảy ra lỗi khi lấy dữ liệu.');
                 setLoading(false);
             }
         };
@@ -137,98 +135,92 @@ const AttributeOptions = ({ onSelectAttributeOption }) => {
         <Box m="20px">
             <Header title="Liên Kết Thuộc Tính" subtitle="Danh sách liên kết thuộc tính" />
 
-            {error ? (
-                <div>{error}</div>
-            ) : (
-                <>
-                    <Box
-                        display="flex"
-                        backgroundColor={colors.primary[400]}
-                        borderRadius="3px"
-                        mb="20px"
-                        width="250px"
-                        height="35px"
-                    >
-                        <InputBase
-                            sx={{ ml: 1, flex: 1, py: 1 }}
-                            placeholder="Tìm kiếm..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                        />
-                    </Box>
-                    <Box display="flex" justifyContent="flex-end" mb="20px">
-                        {selectedIds.length <= 1 && (
-                            <Button
-                                type="button"
-                                color="secondary"
-                                variant="contained"
-                                onClick={handleEditOrAddProduct}
-                                sx={{ marginRight: '10px' }}
-                            >
-                                {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
-                            </Button>
-                        )}
-                        {selectedIds.length > 0 && (
-                            <Button
-                                type="button"
-                                color="secondary"
-                                variant="contained"
-                                onClick={handleDeleteAttributeOption}
-                                sx={{ marginRight: '10px' }}
-                            >
-                                {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
-                            </Button>
-                        )}
-                    </Box>
-                    {loading ? (
-                        <CircularProgress />
-                    ) : skus.length === 0 ? (
-                        <div>Không tìm thấy tùy chọn thuộc tính nào.</div>
-                    ) : (
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
-                                    <TableRow>
-                                        <TableCell />
-                                        <TableCell sx={{ color: 'white' }}>ID</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Mã SKU</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>Tên thuộc tính</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredOptions.map((row) => (
-                                        <TableRow
-                                            key={row.id}
-                                            onClick={() => handleRowClick(row.id)}
-                                            sx={{
-                                                cursor: 'pointer',
-                                                '&:last-child td, &:last-child th': { border: 0 },
-                                                backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
-                                                '&:hover': {
-                                                    backgroundColor: colors.primary[900],
-                                                },
-                                            }}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={isSelected(row.id)}
-                                                    onChange={() => handleRowClick(row.id)}
-                                                    color="primary"
-                                                />
-                                            </TableCell>
-                                            <TableCell component="th" scope="row">
-                                                {row.id}
-                                            </TableCell>
-                                            <TableCell>{row.skusCode}</TableCell>
-                                            <TableCell>{row.attributeValue}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+            <>
+                <Box
+                    display="flex"
+                    backgroundColor={colors.primary[400]}
+                    borderRadius="3px"
+                    mb="20px"
+                    width="250px"
+                    height="35px"
+                >
+                    <InputBase
+                        sx={{ ml: 1, flex: 1, py: 1 }}
+                        placeholder="Tìm kiếm..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                    />
+                </Box>
+                <Box display="flex" justifyContent="flex-end" mb="20px">
+                    {selectedIds.length <= 1 && (
+                        <Button
+                            type="button"
+                            color="secondary"
+                            variant="contained"
+                            onClick={handleEditOrAddProduct}
+                            sx={{ marginRight: '10px' }}
+                        >
+                            {selectedIds.length === 1 ? "Sửa" : "Thêm mới"}
+                        </Button>
                     )}
-                </>
-            )}
+                    {selectedIds.length > 0 && (
+                        <Button
+                            type="button"
+                            color="secondary"
+                            variant="contained"
+                            onClick={handleDeleteAttributeOption}
+                            sx={{ marginRight: '10px' }}
+                        >
+                            {selectedIds.length > 1 ? "Xóa những mục đã chọn" : "Xóa"}
+                        </Button>
+                    )}
+                </Box>
+                {loading ? (
+                    <CircularProgress />
+                ) : (
+                    <TableContainer component={Paper}>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                            <TableHead sx={{ backgroundColor: colors.blueAccent[700] }}>
+                                <TableRow>
+                                    <TableCell />
+                                    <TableCell sx={{ color: 'white' }}>ID</TableCell>
+                                    <TableCell sx={{ color: 'white' }}>Mã SKU</TableCell>
+                                    <TableCell sx={{ color: 'white' }}>Tên thuộc tính</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {filteredOptions.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        onClick={() => handleRowClick(row.id)}
+                                        sx={{
+                                            cursor: 'pointer',
+                                            '&:last-child td, &:last-child th': { border: 0 },
+                                            backgroundColor: isSelected(row.id) ? colors.primary[900] : 'inherit',
+                                            '&:hover': {
+                                                backgroundColor: colors.primary[900],
+                                            },
+                                        }}
+                                    >
+                                        <TableCell padding="checkbox">
+                                            <Checkbox
+                                                checked={isSelected(row.id)}
+                                                onChange={() => handleRowClick(row.id)}
+                                                color="primary"
+                                            />
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {row.id}
+                                        </TableCell>
+                                        <TableCell>{row.skusCode}</TableCell>
+                                        <TableCell>{row.attributeValue}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                )}
+            </>
             <ToastContainer />
         </Box>
     );

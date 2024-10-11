@@ -1,8 +1,6 @@
-// Xóa dòng import React nếu không sử dụng React trực tiếp
 import { useEffect, useState } from "react";
-import { Box, Button, TextField, Typography, Input } from "@mui/material";
+import { Box, Button, TextField, Input } from "@mui/material";
 import { Formik } from "formik";
-import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../component/Header";
 import { useParams, useNavigate } from "react-router-dom";
@@ -93,13 +91,10 @@ const Form = ({ oncategoryUpdated, selectedCategory }) => {
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
-        validationSchema={checkoutSchema}
         enableReinitialize
       >
         {({
           values,
-          errors,
-          touched,
           handleBlur,
           handleChange,
           handleSubmit,
@@ -123,8 +118,6 @@ const Form = ({ oncategoryUpdated, selectedCategory }) => {
                 onChange={handleChange}
                 value={values.categoryName}
                 name="categoryName"
-                error={!!touched.categoryName && !!errors.categoryName}
-                helperText={touched.categoryName && errors.categoryName}
                 sx={{ gridColumn: "span 4" }}
               />
 
@@ -148,10 +141,6 @@ const Form = ({ oncategoryUpdated, selectedCategory }) => {
                 inputProps={{ accept: 'image/jpeg, image/png' }}
               />
 
-              {touched.img && errors.img ? (
-                <Typography color="error">{errors.img}</Typography>
-              ) : null}
-
               <h5>Mô tả:</h5>
               <TextField
                 fullWidth
@@ -161,8 +150,6 @@ const Form = ({ oncategoryUpdated, selectedCategory }) => {
                 onChange={handleChange}
                 value={values.description}
                 name="description"
-                error={!!touched.description && !!errors.description}
-                helperText={touched.description && errors.description}
                 sx={{ gridColumn: "span 4" }}
               />
             </Box>
@@ -190,21 +177,5 @@ Form.propTypes = {
     img: PropTypes.string,
   })
 };
-
-const checkoutSchema = yup.object().shape({
-  categoryName: yup.string().required("Vui lòng không bỏ trống!"),
-  img: yup.mixed()
-    .test("fileType", "Chỉ chấp nhận các định dạng hình ảnh: .jpg, .jpeg, .png", value => {
-      if (typeof value === 'string') return true; // Nếu là URL hoặc tên tệp thì không cần kiểm tra định dạng
-      if (!value) return true; // Nếu không có giá trị, không cần kiểm tra
-      const supportedFormats = ['image/jpeg', 'image/png'];
-      return supportedFormats.includes(value.type);
-    })
-    .test("fileSize", "Kích thước hình ảnh tối đa là 10MB", value => {
-      if (typeof value === 'string') return true; // Nếu là URL hoặc tên tệp thì không cần kiểm tra kích thước
-      if (!value) return true; // Nếu không có giá trị, không cần kiểm tra
-      return value.size <= 10 * 1024 * 1024;
-    }),
-});
 
 export default Form;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, Input, Typography } from '@mui/material';
+import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, Input } from '@mui/material';
 import { Formik, Field, Form } from 'formik';
-import * as yup from 'yup';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -68,23 +67,12 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
     }, [id, selectedProduct]);
 
     const handleFormSubmit = async (values) => {
-        const nameExists = await checkProductNameExists(values.name);
-        if (nameExists) {
-            toast.error("Tên sản phẩm đã tồn tại.");
-            return;
-        }
-
-        if (!values.imgUrl || !(values.imgUrl instanceof File)) {
-            toast.error("Vui lòng không bỏ trống hình ảnh.");
-            return;
-        }
-
         const formData = new FormData();
         formData.append('name', values.name);
         formData.append('description', values.description);
         formData.append('categoryId', values.categoryId);
         if (values.imgUrl instanceof File) {
-            formData.append('imgUrl', values.imgUrl);  // Thêm hình ảnh vào formData
+            formData.append('imgUrl', values.imgUrl);
         }
 
         if (isEdit) {
@@ -129,28 +117,10 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
 
             <Formik
                 initialValues={initialValues}
-                validationSchema={yup.object().shape({
-                    name: yup.string().required("Tên sản phẩm không được để trống!"),
-                    categoryId: yup.string().required("Vui lòng chọn loại sản phẩm!"),
-                    createdAt: yup.date().nullable().notRequired(),
-                    updatedAt: yup.date().nullable().notRequired(),
-                    imgUrl: yup.mixed()
-                        .test("fileType", "Chỉ chấp nhận các định dạng hình ảnh: .jpg, .jpeg, .png", value => {
-                            if (typeof value === 'string') return true; // Nếu là URL hoặc tên tệp thì không cần kiểm tra định dạng
-                            if (!value) return true; // Nếu không có giá trị, không cần kiểm tra
-                            const supportedFormats = ['image/jpeg', 'image/png'];
-                            return supportedFormats.includes(value.type);
-                        })
-                        .test("fileSize", "Kích thước hình ảnh tối đa là 10MB", value => {
-                            if (typeof value === 'string') return true; // Nếu là URL hoặc tên tệp thì không cần kiểm tra kích thước
-                            if (!value) return true; // Nếu không có giá trị, không cần kiểm tra
-                            return value.size <= 10 * 1024 * 1024;
-                        }),
-                })}
                 onSubmit={handleFormSubmit}
                 enableReinitialize
             >
-                {({ values, errors, touched, handleChange, handleBlur, setFieldValue }) => (
+                {({ values, handleChange, handleBlur, setFieldValue }) => (
                     <Form>
                         <Box display="grid" gap="30px">
                             <div className='row'>
@@ -165,8 +135,6 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         value={values.name}
-                                        error={!!touched.name && !!errors.name}
-                                        helperText={touched.name && errors.name}
                                         style={{ marginBottom: '20px' }}
                                     />
 
@@ -178,7 +146,6 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
                                             value={values.categoryId || ""}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            error={!!touched.categoryId && !!errors.categoryId}
                                         >
                                             {categories.map(category => (
                                                 <MenuItem key={category.categoryId} value={category.categoryId}>
@@ -204,7 +171,6 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
                                                 value={values.createdAt || ""}
                                                 sx={{ gridColumn: "span 2" }}
                                             />
-                                            <p></p><p></p>
                                             <h5>Ngày cập nhật:</h5>
                                             <Field
                                                 as={TextField}
@@ -214,8 +180,6 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
                                                 name="updatedAt"
                                                 disabled
                                                 value={values.updatedAt || ""}
-                                                error={!!touched.updatedAt && !!errors.updatedAt}
-                                                helperText={touched.updatedAt && errors.updatedAt}
                                                 sx={{ gridColumn: "span 2" }}
                                             />
                                         </div>
@@ -245,9 +209,6 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
                                         inputProps={{ accept: 'image/jpg, image/png' }}
                                         style={{ marginBottom: '20px' }}
                                     />
-                                    {touched.imgUrl && errors.imgUrl ? (
-                                        <Typography color="error">{errors.imgUrl}</Typography>
-                                    ) : null}
                                 </div>
 
                                 <div className='col-12' >
@@ -261,8 +222,6 @@ const FormProduct = ({ onProductUpdated, selectedProduct }) => {
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         value={values.description}
-                                        error={!!touched.description && !!errors.description}
-                                        helperText={touched.description && errors.description}
                                         multiline
                                         rows={4}
                                         sx={{ gridColumn: "span 4" }}
@@ -294,16 +253,6 @@ FormProduct.propTypes = {
         imgUrl: PropTypes.string,
         categoryId: PropTypes.string
     })
-};
-
-const checkProductNameExists = async (productName) => {
-    try {
-        const response = await axios.get(`http://localhost:8080/api/products/check?name=${productName}`);
-        return response.data;
-    } catch (error) {
-        console.error("Lỗi kiểm tra tên sản phẩm:", error);
-        return false;
-    }
 };
 
 export default FormProduct;

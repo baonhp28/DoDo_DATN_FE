@@ -42,14 +42,14 @@ const Invoices = () => {
           id: invoice.orderId,
           orderId: invoice.orderId,
           username: invoice.user.username,
-          employee: invoice?.username || "N/A",
-          payment: invoice?.payment?.paymentName || "N/A",
+          employee: invoice?.username,
+          payment: invoice?.payment?.paymentName,
           orderDate: new Date(invoice.orderDate).toLocaleDateString(),
           totalAmount: invoice.totalAmount,
           shippingFee: invoice.shippingFee.toFixed(2),
           status: invoice.status,
           orderDetails: invoice.orderDetails || [],
-          address: invoice.address || "N/A",
+          address: invoice.address,
           phone: invoice.phone,
         }));
 
@@ -94,7 +94,6 @@ const Invoices = () => {
         },
       });
 
-      // Refresh the invoices
       const response = await request({
         method: "GET",
         path: "/api/orders",
@@ -104,14 +103,14 @@ const Invoices = () => {
         id: invoice.orderId,
         orderId: invoice.orderId,
         username: invoice.user.username,
-        employee: invoice?.username || "N/A",
-        payment: invoice?.payment?.paymentName || "N/A",
+        employee: invoice?.username,
+        payment: invoice?.payment?.paymentName,
         orderDate: new Date(invoice.orderDate).toLocaleDateString(),
         totalAmount: invoice.totalAmount,
         shippingFee: invoice.shippingFee.toFixed(2),
         status: invoice.status,
         orderDetails: invoice.orderDetails || [],
-        address: invoice.address || "N/A",
+        address: invoice.address,
         phone: invoice.phone,
       }));
 
@@ -138,14 +137,14 @@ const Invoices = () => {
     setSelectedInvoice(null);
   };
 
-  const sortAttributes = (attributes) => {
-    const order = ["màu", "RAM", "dung lượng"];
-    return attributes.sort((a, b) => {
-      const aIndex = order.indexOf(a.attributeOption.value.toLowerCase());
-      const bIndex = order.indexOf(b.attributeOption.value.toLowerCase());
-      return aIndex - bIndex;
-    });
-  };
+  // const sortAttributes = (attributes) => {
+  //   const order = ["màu", "RAM", "dung lượng"];
+  //   return attributes.sort((a, b) => {
+  //     const aIndex = order.indexOf(a.attributeOption.value.toLowerCase());
+  //     const bIndex = order.indexOf(b.attributeOption.value.toLowerCase());
+  //     return aIndex - bIndex;
+  //   });
+  // };
 
   const calculateTotalAmount = (orderDetails) => {
     return orderDetails.reduce(
@@ -285,78 +284,48 @@ const Invoices = () => {
               <strong>Họ tên:</strong> {selectedInvoice.employee}
             </Typography>
             <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-              <strong>Số điện thoại:</strong> {selectedInvoice.phone || "N/A"}
+              <strong>Số điện thoại:</strong> {selectedInvoice.phone}
             </Typography>
             <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-              <strong>Địa chỉ:</strong> {selectedInvoice.address || "N/A"}
+              <strong>Địa chỉ:</strong> {selectedInvoice.address}
             </Typography>
             <Typography variant="body2" sx={{ fontSize: "1rem" }}>
               <strong>Phí ship:</strong> {selectedInvoice.shippingFee} VND
             </Typography>
             <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-              <strong>Phương thức thanh toán:</strong>{" "}
-              {selectedInvoice.payment || "N/A"}
+              <strong>Ngày đặt:</strong> {selectedInvoice.orderDate}
+            </Typography>
+            <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+              <strong>Tổng tiền:</strong> {formatCurrency(calculateTotalAmount(selectedInvoice.orderDetails))} VND
             </Typography>
           </Box>
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>STT</TableCell>
+                <TableCell>Mã sản phẩm</TableCell>
                 <TableCell>Tên sản phẩm</TableCell>
-                <TableCell>Cấu hình</TableCell>
+                <TableCell>Giá</TableCell>
                 <TableCell>Số lượng</TableCell>
-                <TableCell>Đơn giá</TableCell>
-                <TableCell>Thành tiền</TableCell>
+                <TableCell>Tổng tiền</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {selectedInvoice.orderDetails.map((detail) => (
-                <TableRow key={detail.id}>
+              {selectedInvoice.orderDetails.map((item, index) => (
+                <TableRow key={item.skus.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{item.skus.id}</TableCell>
+                  <TableCell>{item.skus.name}</TableCell>
+                  <TableCell>{formatCurrency(item.skus.price)}</TableCell>
+                  <TableCell>{item.quantity}</TableCell>
                   <TableCell>
-                    <Typography>
-                      {detail.skus?.product?.name || "N/A"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {sortAttributes(detail.skus?.attributesSkus || []).map(
-                      (attribute) => (
-                        <Typography key={attribute.id}>
-                          {attribute.attributeOption?.attributes?.name || "N/A"}
-                          : {attribute.attributeOption?.value || "N/A"}
-                        </Typography>
-                      )
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography>{detail.quantity || "N/A"}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography>{detail.skus.price || "N/A"}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography>
-                      {detail.skus.price * detail.quantity || "N/A"}
-                    </Typography>
+                    {formatCurrency(item.skus.price * item.quantity)}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <Typography sx={{ fontSize: "1rem", mt: 3 }}>
-            <h6>
-              <strong>Tổng: </strong>{" "}
-              <strong>
-                {formatCurrency(
-                  calculateTotalAmount(selectedInvoice.orderDetails)
-                )}
-              </strong>
-            </h6>
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2, float: "inline-end" }}
-            onClick={handleCloseDetails}
-          >
+          <Button variant="contained" color="secondary" onClick={handleCloseDetails} sx={{ mt: 2 }}>
             Đóng
           </Button>
         </Box>

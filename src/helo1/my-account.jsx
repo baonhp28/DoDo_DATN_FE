@@ -11,6 +11,179 @@ function My_account() {
 	const [districts, setDistricts] = useState([]);
 	const [wards, setWards] = useState([]);
 	const [addresses, setAddresses] = useState([]);
+	const [user, setUser] = useState({
+		fullname: '',
+		email: '',
+		phone: '',
+		birthday: '',
+		gender: '',
+		addresses: []
+	});
+
+	const [editableUser, setEditableUser] = useState({ ...user });
+
+	// State để lưu trữ các thông báo lỗi
+	const [errors, setErrors] = useState({
+		fullname: '',
+		email: '',
+		phone: '',
+		// address: '',
+		birthday: '',
+		gender: ''
+	});
+
+	useEffect(() => {
+		const token = localStorage.getItem('token');
+
+		if (token) {
+			fetch('http://localhost:8080/api/users', {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': 'application/json'
+				}
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+					return response.json();
+				})
+				.then(data => {
+					const userData = {
+						fullname: data.fullname || '',
+						email: data.email || '',
+						phone: data.phone || '',
+						birthday: data.birthday ? data.birthday.split('T')[0] : '',
+						gender: data.gender,
+						addresses: data.addresses || []  // Lưu địa chỉ
+					};
+					setUser(userData);
+					setEditableUser(userData);
+				})
+				.catch(error => {
+					console.error('Lỗi khi tìm kiếm dữ liệu:', error);
+				});
+		} else {
+			console.error("Không tìm thấy Token!!");
+		}
+	}, []);
+
+	// Kiểm tra lỗi trước khi gửi form
+	const validate = () => {
+		let valid = true;
+		let newErrors = {
+			fullname: '',
+			email: '',
+			phone: '',
+			// address: '',
+			birthday: '',
+			gender: ''
+		};
+
+		// Kiểm tra trường họ và tên
+		if (!editableUser.fullname.trim()) {
+			newErrors.fullname = 'Họ và tên không được để trống';
+			valid = false;
+		}
+
+		// Kiểm tra định dạng email
+		const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!editableUser.email.trim()) {
+			newErrors.email = 'Email không được để trống';
+			valid = false;
+		} else if (!emailPattern.test(editableUser.email)) {
+			newErrors.email = 'Email không hợp lệ';
+			valid = false;
+		}
+
+		// Kiểm tra định dạng số điện thoại (ví dụ: số điện thoại Việt Nam)
+		const phonePattern = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+		if (!editableUser.phone.trim()) {
+			newErrors.phone = 'Số điện thoại không được để trống';
+			valid = false;
+		} else if (!phonePattern.test(editableUser.phone)) {
+			newErrors.phone = 'Số điện thoại không hợp lệ';
+			valid = false;
+		}
+
+		// Kiểm tra trường địa chỉ
+		// if (!editableUser.address.trim()) {
+		// 	newErrors.address = 'Địa chỉ không được để trống';
+		// 	valid = false;
+		// }
+
+		// Kiểm tra trường ngày sinh
+		if (!editableUser.birthday.trim()) {
+			newErrors.birthday = 'Ngày sinh không được để trống';
+			valid = false;
+		}
+
+		// Kiểm tra giới tính
+		if (editableUser.gender === '') {
+			newErrors.gender = 'Giới tính không được để trống';
+			valid = false;
+		}
+
+		setErrors(newErrors);
+		return valid;
+	};
+
+	const handleSaveChanges = (e) => {
+		e.preventDefault();
+
+		if (!validate()) {
+			return;
+		}
+
+		const token = localStorage.getItem('token');
+
+		if (token) {
+			fetch('http://localhost:8080/api/users/update', {
+				method: 'PUT',
+				headers: {
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(editableUser)
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+					return response.json();
+				})
+				.then(data => {
+					alert('Thông tin đã được cập nhật thành công!');
+					setUser(data);
+				})
+				.catch(error => {
+					console.error('Error updating user data:', error);
+					alert('Có lỗi xảy ra trong quá trình cập nhật.');
+				});
+		} else {
+			console.error("No token found in localStorage");
+		}
+	};
+
+	const handleInputChange1 = (e) => {
+		const { id, value } = e.target;
+		setEditableUser({
+			...editableUser,
+			[id]: value
+		});
+	};
+
+	const handleGenderChange = (e) => {
+		const genderValue = e.target.value === 'male';
+		setEditableUser({
+			...editableUser,
+			gender: genderValue
+		});
+	};
+
+
+
 
 	// Trạng thái cho địa chỉ mới
 	const [newAddress, setNewAddress] = useState({
@@ -30,7 +203,7 @@ function My_account() {
 	const handleDistrictChange = (event) => {
 		setSelectedDistrict(event.target.value);
 	};
-	
+
 	const handleWardChange = (event) => {
 		setSelectedWard(event.target.value);
 	};
@@ -87,8 +260,8 @@ function My_account() {
 				},
 			});
 			console.log('selectedProvince:', selectedProvince);
-console.log('selectedDistrict:', selectedDistrict);
-console.log('selectedWard:', selectedWard);
+			console.log('selectedDistrict:', selectedDistrict);
+			console.log('selectedWard:', selectedWard);
 
 			console.log('Địa chỉ đã được lưu:', response.data);
 			setAddresses((prev) => [...prev, response.data]);
@@ -116,12 +289,12 @@ console.log('selectedWard:', selectedWard);
 	const handleDeleteDefaultAddress = async (id) => {
 		const token = localStorage.getItem('token');
 		console.log('Token:', token);
-	
+
 		if (!token) {
 			alert('Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.');
 			return;
 		}
-		
+
 		try {
 			const response = await axios.delete(`http://localhost:8080/api/addresses/${id}`, {
 				headers: {
@@ -129,10 +302,10 @@ console.log('selectedWard:', selectedWard);
 					'Content-Type': 'application/json',
 				},
 			});
-	
+
 			// Cập nhật danh sách địa chỉ sau khi xóa
 			setAddresses((prev) => prev.filter(address => address.id !== id));
-	
+
 			console.log('Địa chỉ đã được xóa:', response.data);
 		} catch (error) {
 			console.error('Error deleting address:', error);
@@ -144,7 +317,7 @@ console.log('selectedWard:', selectedWard);
 			}
 		}
 	};
-	
+
 	useEffect(() => {
 		const fetchProvinces = async () => {
 			const token = localStorage.getItem('token');
@@ -410,7 +583,7 @@ console.log('selectedWard:', selectedWard);
 																	<th>Tên</th>
 																	<th>Số điện thoại</th>
 																	<th>Địa chỉ chi tiết</th>
-																
+
 																	<th>Thao tác</th>
 																</tr>
 															</thead>
@@ -422,13 +595,13 @@ console.log('selectedWard:', selectedWard);
 																			<td>{address.name}</td>
 																			<td>{address.phone}</td>
 																			<td>{address.detailedAddress}</td>
-																			
+
 																			<td>
 																				<button onClick={() => handleSelectDefaultAddress(address.id)}>Chọn làm địa chỉ mặc định</button>
-																				
+
 																			</td>
 																			<td>
-																			<button onClick={() => handleDeleteDefaultAddress(address.id)}>Xóa</button>
+																				<button onClick={() => handleDeleteDefaultAddress(address.id)}>Xóa</button>
 																			</td>
 																		</tr>
 																	))
@@ -550,8 +723,6 @@ console.log('selectedWard:', selectedWard);
 												</div>
 											</div>
 
-
-
 											<div className="tab-pane fade" id="address-edit" role="tabpanel">
 												<div className="myaccount-content">
 													<h3>Billing Address</h3>
@@ -572,40 +743,55 @@ console.log('selectedWard:', selectedWard);
 													<h3>Account Details</h3>
 
 													<div className="account-details-form">
-														<form action="#">
+														<form onSubmit={handleSaveChanges}>
 															<div className="row">
-																<div className="col-lg-6 col-12 mb-30">
-																	<input id="first-name" placeholder="First Name" type="text" />
-																</div>
-
-																<div className="col-lg-6 col-12 mb-30">
-																	<input id="last-name" placeholder="Last Name" type="text" />
-																</div>
-
-																<div className="col-12 mb-30">
-																	<input id="display-name" placeholder="Display Name" type="text" />
+																<div className="col-lg-12 col-12 mb-30">
+																	<label htmlFor="fullname" style={{ marginBottom: '10px', display: 'block', textAlign: 'left' }}>Họ và tên</label>
+																	<input id="fullname" value={editableUser.fullname} onChange={handleInputChange1} placeholder="Full Name" type="text" style={{ marginBottom: '20px', width: '100%' }} />
+																	{errors.fullname && <p style={{ color: 'red' }}>{errors.fullname}</p>}
 																</div>
 
 																<div className="col-12 mb-30">
-																	<input id="email" placeholder="Email Address" type="email" />
+																	<label htmlFor="email" style={{ marginBottom: '10px', display: 'block', textAlign: 'left' }}>Email</label>
+																	<input id="email" value={editableUser.email} onChange={handleInputChange1} placeholder="Email Address" type="email" style={{ marginBottom: '20px', width: '100%' }} />
+																	{errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
 																</div>
-
-																<div className="col-12 mb-30"><h4>Password change</h4></div>
 
 																<div className="col-12 mb-30">
-																	<input id="current-pwd" placeholder="Current Password" type="password" />
+																	<label htmlFor="phone" style={{ marginBottom: '10px', display: 'block', textAlign: 'left' }}>Số điện thoại</label>
+																	<input id="phone" value={editableUser.phone} onChange={handleInputChange1} placeholder="Phone Number" type="text" style={{ marginBottom: '20px', width: '100%' }} />
+																	{errors.phone && <p style={{ color: 'red' }}>{errors.phone}</p>}
 																</div>
 
-																<div className="col-lg-6 col-12 mb-30">
-																	<input id="new-pwd" placeholder="New Password" type="password" />
+																{/* <div className="col-12 mb-30">
+																	<label htmlFor="address" style={{ marginBottom: '10px', display: 'block', textAlign: 'left' }}>Địa chỉ</label>
+																	<input id="address" value={editableUser.address} onChange={handleInputChange} placeholder="Address" type="text" style={{ marginBottom: '20px', width: '100%' }} />
+																	{errors.address && <p style={{ color: 'red' }}>{errors.address}</p>}
+																</div> */}
+
+																<div className="col-12 mb-30">
+																	<label htmlFor="birthday" style={{ marginBottom: '10px', display: 'block', textAlign: 'left' }}>Ngày sinh</label>
+																	<input id="birthday" value={editableUser.birthday} onChange={handleInputChange1} placeholder="Birthday" type="date" style={{ marginBottom: '20px', width: '100%' }} />
+																	{errors.birthday && <p style={{ color: 'red' }}>{errors.birthday}</p>}
 																</div>
 
-																<div className="col-lg-6 col-12 mb-30">
-																	<input id="confirm-pwd" placeholder="Confirm Password" type="password" />
+																<div className="col-12 mb-30">
+																	<label htmlFor="gender" style={{ marginBottom: '10px', display: 'block', textAlign: 'left' }}>Giới tính</label>
+																	<div style={{ display: 'flex', gap: '20px' }}>
+																		<label>
+																			<input type="radio" name="gender" value="male" checked={editableUser.gender === true} onChange={handleGenderChange} />
+																			Nam
+																		</label>
+																		<label>
+																			<input type="radio" name="gender" value="female" checked={editableUser.gender === false} onChange={handleGenderChange} />
+																			Nữ
+																		</label>
+																	</div>
+																	{errors.gender && <p style={{ color: 'red' }}>{errors.gender}</p>}
 																</div>
 
 																<div className="col-12">
-																	<button className="theme-btn">Save Changes</button>
+																	<button className="theme-btn" type="submit">Save Changes</button>
 																</div>
 
 															</div>
