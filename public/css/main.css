@@ -183,6 +183,7 @@ img {
 
 p {
   line-height: 20px;
+  text-align: left;
 }
 
 .btn:focus,
@@ -10277,6 +10278,7 @@ ul.sidebar-filter-list li.active a:before, ul.sidebar-filter-list li:hover a:bef
   font-weight: 500;
   line-height: normal;
   margin: 0 0 30px;
+  text-align: left;
 }
 .pm-product-details .description-block .price span {
   margin-right: 7px;
@@ -10288,6 +10290,7 @@ ul.sidebar-filter-list li.active a:before, ul.sidebar-filter-list li:hover a:bef
   margin: 0 0 2s 5px 0;
   text-transform: uppercase;
   width: 100%;
+  text-align: left;
 }
 .pm-product-details .description-block .status i {
   color: #56a700;

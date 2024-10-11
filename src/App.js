@@ -154,7 +154,7 @@ function App() {
         <Route path="/blog_details" element={<Blog_details />} />
         <Route path="/404" element={<Loi />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/Product_details" element={<Product_details />} />
+        <Route path="/Product_details/:id" element={<Product_details />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/my-account" element={<My_account />} />
         <Route path="/portfolio" element={<Portfolio />} />
