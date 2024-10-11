@@ -337,8 +337,24 @@
 // }
 // export default Header
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function Header() {
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/categories');
+                setCategories(response.data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
     return (
         <div>
             <div className="site-wrapper">
@@ -354,7 +370,7 @@ function Header() {
                                         <div className="header-top-nav right-nav">
                                             <div className="nav-item slide-down-wrapper">
                                                 <span>Language:</span>
-                                                <a className="slide-down--btn" style={{ textDecoration: 'none' }}  href="#" role="button">
+                                                <a className="slide-down--btn" style={{ textDecoration: 'none' }} href="#" role="button">
                                                     English<i className="ion-ios-arrow-down"></i>
                                                 </a>
                                                 <ul className="dropdown-list slide-down--item">
@@ -382,38 +398,27 @@ function Header() {
                                     <div className="col-lg-3 col-md-12 col-sm-4">
                                         <div className="site-brand text-center text-lg-start">
                                             <a href="/" className="brand-image">
-                                                <img src="image/main-logo.png" alt="" />
+                                                <img src="/image/main-logo.png" alt="" />
                                             </a>
                                         </div>
                                     </div>
 
                                     <div className="col-lg-5 col-md-7 order-3 order-md-2">
                                         <form className="category-widget">
-                                            <input type="text" name="search" placeholder="Search products " />
+                                            <input type="text" name="search" placeholder="Search products" />
                                             <div className="search-form__group search-form__group--select">
                                                 <select name="category" id="searchCategory" className="search-form__select nice-select">
                                                     <option value="all">All Categories</option>
-                                                    <optgroup label="Books, Magazines">
-                                                        <option>Bedroom</option>
-                                                        <option>Kitchen</option>
-                                                        <option>Livingroom</option>
-                                                    </optgroup>
-                                                    <optgroup label="Electronics">
-                                                        <option>Fridge</option>
-                                                        <option>Laptops, Desktops</option>
-                                                        <option>Mobiles, Tablets</option>
-                                                    </optgroup>
-                                                    <optgroup label="Furniture">
-                                                        <option>Accessories</option>
-                                                        <option>Men</option>
-                                                        <option>Women</option>
-                                                    </optgroup>
-                                                    <option value="3">Home, Garden</option>
-                                                    <option value="3">Kids, Baby</option>
-                                                    <option value="3">Sport</option>
+                                                    {categories.map((category) => (
+                                                        <option key={category.id} value={category.id}>
+                                                            {category.categoryName}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </div>
-                                            <button className="search-submit"><i className="fas fa-search"></i></button>
+                                            <button className="search-submit">
+                                                <i className="fas fa-search"></i>
+                                            </button>
                                         </form>
                                     </div>
 
@@ -452,91 +457,23 @@ function Header() {
                                                     <span>All Categories</span>
                                                 </h2>
                                                 <ul className="category-nav__menu" id="js-cat-nav">
-                                                    <li className="category-nav__menu__item has-children">
-                                                        <a href="shop.html" style={{ textDecoration: 'none' }}>Fashion</a>
-                                                        <div className="category-nav__submenu">
-                                                            <div className="category-nav__submenu--inner">
-                                                                <ul>
-                                                                    <li><a href="shop.html">Health &amp; Beauties</a></li>
-                                                                </ul>
+                                                    {categories.map(category => (
+                                                        <li key={category.id} className="category-nav__menu__item">
+                                                            <a href="shop.html" style={{ textDecoration: 'none' }}>
+                                                                {category.categoryName}
+                                                            </a>
+                                                            {/* If you have subcategories, you can render them here */}
+                                                            <div className="category-nav__submenu">
+                                                                <div className="category-nav__submenu--inner">
+                                                                    <ul>
+                                                                        {/* Example of rendering subcategories if available */}
+                                                                        {/* You can modify this part based on your data structure */}
+                                                                        {/* <li><a href="shop.html">Subcategory Name</a></li> */}
+                                                                    </ul>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </li>
-                                                    <li className="category-nav__menu__item has-children">
-                                                        <a href="shop.html" style={{ textDecoration: 'none' }}>Electronics</a>
-                                                        <div className="category-nav__submenu mega-menu three-column">
-                                                            <div className="category-nav__submenu--inner">
-                                                                <h3 className="category-nav__submenu__title">Television</h3>
-                                                                <ul>
-                                                                    <li><a href="shop.html">LED TV</a></li>
-                                                                    <li><a href="shop.html">LCD TV</a></li>
-                                                                    <li><a href="shop.html">Curved TV</a></li>
-                                                                    <li><a href="shop.html">Plasma TV</a></li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="category-nav__submenu--inner">
-                                                                <h3 className="category-nav__submenu__title">Refrigerator</h3>
-                                                                <ul>
-                                                                    <li><a href="shop.html">LG</a></li>
-                                                                    <li><a href="shop.html">Samsung</a></li>
-                                                                    <li><a href="shop.html">Toshiba</a></li>
-                                                                    <li><a href="shop.html">Panasonic</a></li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="category-nav__submenu--inner">
-                                                                <h3 className="category-nav__submenu__title">Air Conditioners</h3>
-                                                                <ul>
-                                                                    <li><a href="shop.html">Samsung</a></li>
-                                                                    <li><a href="shop.html">Panasonic</a></li>
-                                                                    <li><a href="shop.html">Sanaky</a></li>
-                                                                    <li><a href="shop.html">Toshiba</a></li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li className="category-nav__menu__item">
-                                                        <a href="shop.html">Baby</a>
-                                                    </li>
-                                                    <li className="category-nav__menu__item has-children">
-                                                        <a href="shop.html">Mobile</a>
-                                                        <div className="category-nav__submenu">
-                                                            <div className="category-nav__submenu--inner">
-                                                                <ul>
-                                                                    <li><a href="shop.html">Apple</a></li>
-                                                                    <li><a href="shop.html">Samsung</a></li>
-                                                                    <li><a href="shop.html">Nokia</a></li>
-                                                                    <li><a href="shop.html">Walton</a></li>
-                                                                    <li><a href="shop.html">Sony</a></li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li className="category-nav__menu__item">
-                                                        <a href="shop.html">Furniture</a>
-                                                        <div className="category-nav__submenu">
-                                                            <div className="category-nav__submenu--inner">
-                                                                <ul>
-                                                                    <li><a href="shop.html">Apple</a></li>
-                                                                    <li><a href="shop.html">Samsung</a></li>
-                                                                    <li><a href="shop.html">LG</a></li>
-                                                                    <li><a href="shop.html">Sony</a></li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li className="category-nav__menu__item">
-                                                        <a href="shop.html">Sport</a>
-                                                    </li>
-                                                    <li className="category-nav__menu__item">
-                                                        <a href="shop.html">Gift, Parties</a>
-                                                    </li>
-                                                    <li className="category-nav__menu__item">
-                                                        <a href="shop.html">Accessories</a>
-                                                    </li>
-                                                    <li className="category-nav__menu__item hidden-lg-menu-item">
-                                                        <a href="shop.html">Samsung</a>
-                                                    </li>
-                                                   
+                                                        </li>
+                                                    ))}
                                                 </ul>
                                             </div>
                                         </div>
@@ -729,7 +666,7 @@ function Header() {
                                                     <li className="category-nav__menu__item hidden-lg-menu-item">
                                                         <a href="shop.html">Samsung</a>
                                                     </li>
-                                                   
+
                                                 </ul>
                                             </div>
                                         </div>
@@ -760,8 +697,8 @@ function Header() {
                                                         <li><Link className="no-underline" to="/login">Login & Registration</Link></li>
                                                     </ul>
                                                 </li>
-                                               
-                                               
+
+
                                                 <li className="mainmenu__item">
                                                     <Link to="/portfolio" className="no-underline">Portfolio</Link>
                                                 </li>
