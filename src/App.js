@@ -6,7 +6,6 @@ import Team from "./scenes/team";
 import Invoices from "./scenes/invoices";
 import Contacts from "./scenes/contacts";
 import Employee from "./scenes/employee";
-import EmployeeForm from "./scenes/employeeForm";
 import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
@@ -135,31 +134,31 @@ function App() {
             element={<FormAttributeOption />}
           />
 
-          <Route path="employeeForm/:id" element={<EmployeeForm />} />
-          <Route path="employeeForm" element={<EmployeeForm />} />
+          {/* <Route path="employeeForm/:id" element={<EmployeeForm />} />
+          <Route path="employeeForm" element={<EmployeeForm />} /> */}
         </Route>
 
         {/* User Routes */}
         <Route element={<MainLayout />}>
-        <Route path="/" element={<Nav />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/Shop_left_sideber" element={<Shop_left_sideber />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/service" element={<Service />} />
-        <Route path="/faq" element={<Faq />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog_details" element={<Blog_details />} />
-        <Route path="/404" element={<Loi />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/Product_details" element={<Product_details />} />
-        <Route path="/compare" element={<Compare />} />
-        <Route path="/my-account" element={<My_account />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/shop-left-sidebar" element={<Shop_left_sideber />} />
-        <Route path="*" element={<Loi />} />
+          <Route path="/" element={<Nav />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/Shop_left_sideber" element={<Shop_left_sideber />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/service" element={<Service />} />
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog_details" element={<Blog_details />} />
+          <Route path="/404" element={<Loi />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/Product_details" element={<Product_details />} />
+          <Route path="/compare" element={<Compare />} />
+          <Route path="/my-account" element={<My_account />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/shop-left-sidebar" element={<Shop_left_sideber />} />
+          <Route path="*" element={<Loi />} />
         </Route>
       </Routes>
     </Router>
